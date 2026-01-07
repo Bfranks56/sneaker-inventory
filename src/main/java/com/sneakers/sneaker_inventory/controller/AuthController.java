@@ -1,6 +1,7 @@
 package com.sneakers.sneaker_inventory.controller;
 
 import com.sneakers.sneaker_inventory.dto.AuthResponse;
+import com.sneakers.sneaker_inventory.dto.LoginRequest;
 import com.sneakers.sneaker_inventory.dto.RegisterRequest;
 import com.sneakers.sneaker_inventory.model.User;
 import com.sneakers.sneaker_inventory.service.AuthService;
@@ -30,6 +31,21 @@ public class AuthController {
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            User user = authService.login(request.getUsername(), request.getPassword());
+
+            AuthResponse response = new AuthResponse(
+                    "login successful",
+                    user.getUsername()
+            );
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
 }

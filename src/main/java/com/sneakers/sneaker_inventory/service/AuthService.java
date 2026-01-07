@@ -36,4 +36,15 @@ public class AuthService {
 //        save to database
         return userRepository.save(user);
     }
+
+    public User login(String username, String password) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Invalid username or password"));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Invalid username or password");
+        }
+
+        return user;
+
+    }
 }
