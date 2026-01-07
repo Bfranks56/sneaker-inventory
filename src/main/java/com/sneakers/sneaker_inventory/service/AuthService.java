@@ -3,6 +3,7 @@ package com.sneakers.sneaker_inventory.service;
 import com.sneakers.sneaker_inventory.dto.RegisterRequest;
 import com.sneakers.sneaker_inventory.model.User;
 import com.sneakers.sneaker_inventory.repository.UserRepository;
+import com.sneakers.sneaker_inventory.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,9 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public User registerUser(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUserName())) {
@@ -37,14 +41,17 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public User login(String username, String password) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Invalid username or password"));
+    public String login(String username, String password) {
+        // FInd user by username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
+        // verify password using Bcrypt
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
 
-        return user;
-
+        // generate JWT token
+        return jwtUtil.generateToken(user.getUsername(), user.getRole().toString());
     }
 }

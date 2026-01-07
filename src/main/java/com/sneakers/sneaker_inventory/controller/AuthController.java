@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -37,13 +39,15 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            User user = authService.login(request.getUsername(), request.getPassword());
+            String token = authService.login(request.getUsername(), request.getPassword());
 
-            AuthResponse response = new AuthResponse(
-                    "login successful",
-                    user.getUsername()
-            );
+            // return token in response
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("username", request.getUsername());
+
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
